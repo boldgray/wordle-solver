@@ -25,7 +25,7 @@ void solveRandom(){
     
     
     //char * secret = wordList[getRandomSecret()];
-    char * secret = "about";
+    char * secret = "scout";
     
     for (int i=0; i<len; i++) {
         char c =  secret[i];
@@ -87,7 +87,7 @@ void solveRandom(){
         
         attempts++;
         
-         newGuess = getNextGuess(feedBack, 0);
+         newGuess = getNextGuess(feedBack);
 
 
     }

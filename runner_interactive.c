@@ -32,7 +32,7 @@ void solveInteractively(){
        printf("%.*s : %.*s\n", len, newGuess, len, feedBack);
 
        if(feedBack[0] == '4'){
-           newGuess = getNextGuess(feedBack, 0);
+           newGuess = getNextGuess(feedBack);
            continue;
        }
             
@@ -47,7 +47,7 @@ void solveInteractively(){
             break;
         }
 
-         newGuess = getNextGuess(feedBack, 0);
+         newGuess = getNextGuess(feedBack);
 
          attempts++;
 

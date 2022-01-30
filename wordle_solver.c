@@ -75,56 +75,8 @@ int getMin(int a, int b){
         return b;
 }
 
-
-char * getNextGuess(char * feedBack, int firstGuess){
-        if(firstGuess == 0){
-            for(int i=0; i<26; i++) {
-                guessMap[i] = 0;
-                secretMap[i] = 0;
-            }
-
-
-            for (int i=0; i<len; i++) {
-                char c = guess[i];
-                guessMap[c-'a']++;
-            }
-
-            for (int i = 0; i < len; i++) {
-                char c = guess[i];
-                if (feedBack[i] == '2' || feedBack[i] == '3')
-                    secretMap[c-'a']++;
-            }
-
-            for (int i = 0; i < len; i++) {
-                char c = guess[i];
-                if (secretMap[c-'a']>0) {
-                    correctChars[c-'a'] = getMin(guessMap[c-'a'], secretMap[c-'a']);
-                    if (feedBack[i] == '3') {
-                        finalGuess[i] = c;
-                        
-                        for(int j=0; j<len; j++)
-                            if(incorrectPositions[c-'a'][j]==i)
-                                incorrectPositions[c-'a'][j] = -1;
-                        
-                    } else {
-                        for(int j=0; j<len; j++)
-                            if(incorrectPositions[c-'a'][j]==-1) {
-                                incorrectPositions[c-'a'][j] = i;
-                                break;
-                            }
-                    }
-
-                    if (guessMap[c-'a'] > secretMap[c-'a'])
-                        characterLimit[c-'a'] =  secretMap[c-'a'];
-
-                } else
-                    wrongChars[c-'a'] = 1;
-
-            }
-        }
-       
-
-        for (int w=0; w<maxWords; w++) {
+char * getGuess(){
+    for (int w=0; w<maxWords; w++) {
             
             if(wordValid[w]==0)
                 continue;
@@ -195,6 +147,57 @@ char * getNextGuess(char * feedBack, int firstGuess){
         return guess;
 }
 
+
+char * getNextGuess(char * feedBack){    
+
+    for(int i=0; i<26; i++) {
+            guessMap[i] = 0;
+            secretMap[i] = 0;
+        }
+
+
+        for (int i=0; i<len; i++) {
+            char c = guess[i];
+            guessMap[c-'a']++;
+        }
+
+        for (int i = 0; i < len; i++) {
+            char c = guess[i];
+            if (feedBack[i] == '2' || feedBack[i] == '3')
+                secretMap[c-'a']++;
+        }
+
+        for (int i = 0; i < len; i++) {
+            char c = guess[i];
+            if (secretMap[c-'a']>0) {
+                correctChars[c-'a'] = getMin(guessMap[c-'a'], secretMap[c-'a']);
+                if (feedBack[i] == '3') {
+                    finalGuess[i] = c;
+                    
+                    for(int j=0; j<len; j++)
+                        if(incorrectPositions[c-'a'][j]==i)
+                            incorrectPositions[c-'a'][j] = -1;
+                    
+                } else {
+                    for(int j=0; j<len; j++)
+                        if(incorrectPositions[c-'a'][j]==-1) {
+                            incorrectPositions[c-'a'][j] = i;
+                            break;
+                        }
+                }
+
+                if (guessMap[c-'a'] > secretMap[c-'a'])
+                    characterLimit[c-'a'] =  secretMap[c-'a'];
+
+            } else
+                wrongChars[c-'a'] = 1;
+
+        }
+       
+        return getGuess();
+        
+}
+
 char * initialize() {
     for(int i=0; i<26; i++) {
         characterLimit[i] = -1;
@@ -214,7 +217,7 @@ char * initialize() {
     getAllWordListFromCSV();
 
 
-    return getNextGuess(NULL, 1);
+    return getGuess();
 }
 
 
