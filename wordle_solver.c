@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -11,18 +12,17 @@ int characterLimit[26];
 int correctChars[26];
 int wordMap[26];
 
-int masterMap[26];
+
 
 int wrongChars[26];
 
 int incorrectPositions[26][len];
 char finalGuess[len];
 
-char feedBack[len];
-int feedBackMap[26];
+
 int guessMap[26];
 int secretMap[26];
-
+char guess[len];
 
 int wordValid[maxWords];
 
@@ -68,33 +68,6 @@ void getAllWordListFromCSV(){
         free(line);
 }
 
-void initialize() {
-    for(int i=0; i<26; i++) {
-        characterLimit[i] = -1;
-        correctChars[i] = 0;
-        masterMap[i] = 0;
-        wrongChars[i] = 0;
-        
-        for(int j=0; j<len; j++)
-            incorrectPositions[i][j] = -1;
-    }
-    
-    for(int i=0; i<len; i++)
-        finalGuess[i] = 0;
-    
-    for(int i=0; i<maxWords; i++)
-        wordValid[i] = 1;
-    
-    getAllWordListFromCSV();	
-}
-
-int getRandomSecret() {
-
-    srand(time(0));
-    int num = rand() % maxWords;
-    return num;
-}
-
 int getMin(int a, int b){
     if(a<b)
         return a;
@@ -102,28 +75,54 @@ int getMin(int a, int b){
         return b;
 }
 
-void solveRandom(){
-		
-    initialize();
-    
-    char * secret = wordList[getRandomSecret()];
-    //secret = "gabriel";
-    
-    
-    for (int i=0; i<len; i++) {
-        char c =  secret[i];
-        masterMap[c-'a']++;
-    }
+
+char * getNextGuess(char * feedBack, int firstGuess){
+        if(firstGuess == 0){
+            for(int i=0; i<26; i++) {
+                guessMap[i] = 0;
+                secretMap[i] = 0;
+            }
 
 
-    int attemps = 0;
-    
-    char * guess;
-    
-    int wordsRemained = maxWords;
+            for (int i=0; i<len; i++) {
+                char c = guess[i];
+                guessMap[c-'a']++;
+            }
 
-    while (wordsRemained > 0) {
+            for (int i = 0; i < len; i++) {
+                char c = guess[i];
+                if (feedBack[i] == '2' || feedBack[i] == '3')
+                    secretMap[c-'a']++;
+            }
 
+            for (int i = 0; i < len; i++) {
+                char c = guess[i];
+                if (secretMap[c-'a']>0) {
+                    correctChars[c-'a'] = getMin(guessMap[c-'a'], secretMap[c-'a']);
+                    if (feedBack[i] == '3') {
+                        finalGuess[i] = c;
+                        
+                        for(int j=0; j<len; j++)
+                            if(incorrectPositions[c-'a'][j]==i)
+                                incorrectPositions[c-'a'][j] = -1;
+                        
+                    } else {
+                        for(int j=0; j<len; j++)
+                            if(incorrectPositions[c-'a'][j]==-1) {
+                                incorrectPositions[c-'a'][j] = i;
+                                break;
+                            }
+                    }
+
+                    if (guessMap[c-'a'] > secretMap[c-'a'])
+                        characterLimit[c-'a'] =  secretMap[c-'a'];
+
+                } else
+                    wrongChars[c-'a'] = 1;
+
+            }
+        }
+       
 
         for (int w=0; w<maxWords; w++) {
             
@@ -187,103 +186,35 @@ void solveRandom(){
                 wordValid[w] = 0;
                 continue;
             }
-            guess = word;
+            for(int i=0; i<len; i++)
+                guess[i] = word[i];
             wordValid[w] = 0;
             break;
         }
-        
-        
-        for(int i=0; i<26; i++) {
-            feedBackMap[i] = 0;
-            guessMap[i] = 0;
-            secretMap[i] = 0;
-        }
-        for (int i=0; i<len; i++) {
-            char c = guess[i];
-            guessMap[c-'a']++;
-        }
 
+        return guess;
+}
 
-        for(int i=0; i<len; i++)
-        {
-            if(secret[i]==guess[i]) {
-                feedBack[i] = '3';
-                feedBackMap[secret[i]-'a']++;
-            }
-        }
+char * initialize() {
+    for(int i=0; i<26; i++) {
+        characterLimit[i] = -1;
+        correctChars[i] = 0;
+        wrongChars[i] = 0;
         
-        for(int i=0; i<len; i++)
-        {
-            if(masterMap[guess[i]-'a']==0) {
-                feedBack[i] = '1';
-            }else if(secret[i]!=guess[i]) {
-                if(feedBackMap[guess[i]-'a'] < masterMap[guess[i]-'a']){
-                feedBack[i] = '2';
-                feedBackMap[guess[i]-'a']++;
-                }else {
-                    feedBack[i] = '1';
-                }
-            }
-        }
-        
-        
-        
-        for (int i = 0; i < len; i++) {
-            char c = guess[i];
-            if (feedBack[i] == '2' || feedBack[i] == '3')
-                secretMap[c-'a']++;
-        }
-
-        for (int i = 0; i < len; i++) {
-            char c = guess[i];
-            if (secretMap[c-'a']>0) {
-                correctChars[c-'a'] = getMin(guessMap[c-'a'], secretMap[c-'a']);
-                if (feedBack[i] == '3') {
-                    finalGuess[i] = c;
-                    
-                    for(int j=0; j<len; j++)
-                        if(incorrectPositions[c-'a'][j]==i)
-                            incorrectPositions[c-'a'][j] = -1;
-                    
-                } else {
-                    for(int j=0; j<len; j++)
-                        if(incorrectPositions[c-'a'][j]==-1) {
-                            incorrectPositions[c-'a'][j] = i;
-                            break;
-                        }
-                }
-
-                if (guessMap[c-'a'] > secretMap[c-'a'])
-                    characterLimit[c-'a'] =  secretMap[c-'a'];
-
-            } else
-                wrongChars[c-'a'] = 1;
-
-        }
-        attemps++;
-        
-        printf("%.*s\n", len, guess);
-
-
-        int done = 1;
-        
-        
-        
-        for (int i=0; i<len; i++)
-            if (finalGuess[i] == 0)
-                done = 0;
-        if (done==1)
-            break;
-
+        for(int j=0; j<len; j++)
+            incorrectPositions[i][j] = -1;
     }
+    
+    for(int i=0; i<len; i++)
+        finalGuess[i] = 0;
+    
+    for(int i=0; i<maxWords; i++)
+        wordValid[i] = 1;
+    
+    getAllWordListFromCSV();
 
-    printf("!!%.*s!! Solved in %d attemps\n\n", len, guess, attemps);
 
+    return getNextGuess(NULL, 1);
 }
 
 
-int main()
-{
-    printf("\n");
-    solveRandom();
-}
