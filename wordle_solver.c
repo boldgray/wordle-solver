@@ -144,57 +144,64 @@ char * getGuess(){
             break;
         }
 
+
+        
+
         return guess;
 }
 
+char * getNextGuess(char * feedBack){  
 
-char * getNextGuess(char * feedBack){    
+    if(feedBack[0]=='4')
+    {
+        return getGuess();
+    }  
 
     for(int i=0; i<26; i++) {
-            guessMap[i] = 0;
-            secretMap[i] = 0;
-        }
+        guessMap[i] = 0;
+        secretMap[i] = 0;
+    }
 
 
-        for (int i=0; i<len; i++) {
-            char c = guess[i];
-            guessMap[c-'a']++;
-        }
+    for (int i=0; i<len; i++) {
+        char c = guess[i];
+        guessMap[c-'a']++;
+    }
 
-        for (int i = 0; i < len; i++) {
-            char c = guess[i];
-            if (feedBack[i] == '2' || feedBack[i] == '3')
-                secretMap[c-'a']++;
-        }
+    for (int i = 0; i < len; i++) {
+        char c = guess[i];
+        if (feedBack[i] == '2' || feedBack[i] == '3')
+            secretMap[c-'a']++;
+    }
 
-        for (int i = 0; i < len; i++) {
-            char c = guess[i];
-            if (secretMap[c-'a']>0) {
-                correctChars[c-'a'] = getMin(guessMap[c-'a'], secretMap[c-'a']);
-                if (feedBack[i] == '3') {
-                    finalGuess[i] = c;
-                    
-                    for(int j=0; j<len; j++)
-                        if(incorrectPositions[c-'a'][j]==i)
-                            incorrectPositions[c-'a'][j] = -1;
-                    
-                } else {
-                    for(int j=0; j<len; j++)
-                        if(incorrectPositions[c-'a'][j]==-1) {
-                            incorrectPositions[c-'a'][j] = i;
-                            break;
-                        }
-                }
+    for (int i = 0; i < len; i++) {
+        char c = guess[i];
+        if (secretMap[c-'a']>0) {
+            correctChars[c-'a'] = getMin(guessMap[c-'a'], secretMap[c-'a']);
+            if (feedBack[i] == '3') {
+                finalGuess[i] = c;
+                
+                for(int j=0; j<len; j++)
+                    if(incorrectPositions[c-'a'][j]==i)
+                        incorrectPositions[c-'a'][j] = -1;
+                
+            } else {
+                for(int j=0; j<len; j++)
+                    if(incorrectPositions[c-'a'][j]==-1) {
+                        incorrectPositions[c-'a'][j] = i;
+                        break;
+                    }
+            }
 
-                if (guessMap[c-'a'] > secretMap[c-'a'])
-                    characterLimit[c-'a'] =  secretMap[c-'a'];
+            if (guessMap[c-'a'] > secretMap[c-'a'])
+                characterLimit[c-'a'] =  secretMap[c-'a'];
 
-            } else
-                wrongChars[c-'a'] = 1;
+        } else
+            wrongChars[c-'a'] = 1;
 
-        }
+    }
        
-        return getGuess();
+    return getGuess();
         
 }
 
