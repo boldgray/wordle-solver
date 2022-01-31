@@ -21,7 +21,7 @@ void solveInteractively()
     {
 
         printf("Next Guess is : %.*s\n", len, newGuess);
-        printf("Enter Feedback (1:correct position, 2: incorrect Position, 3: wrong char, 4:invalid guess) : ");
+        printf("Enter Feedback (1:wrong char, 2: incorrect Position, 3:correct position , 4:invalid guess) : ");
         scanf("%[^\n]%*c", feedBack);
 
         printf("%.*s : %.*s\n", len, newGuess, len, feedBack);
